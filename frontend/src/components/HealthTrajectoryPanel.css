@@ -1,0 +1,916 @@
+/* =======================================================
+   HEALTHTRAJECTORY AI — CLINICAL CHANGE DETECTION STYLES
+   ======================================================= */
+
+.health-trajectory-container {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  margin-top: 18px;
+  margin-bottom: 40px;
+}
+
+/* Empty State */
+.trajectory-empty-state {
+  background: #ffffff;
+  border: 1px dashed #c0d4e4;
+  border-radius: 16px;
+  padding: 48px 24px;
+  text-align: center;
+  color: #5a738e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.trajectory-empty-state .empty-icon {
+  color: #087f8c;
+  opacity: 0.6;
+}
+
+.trajectory-empty-state h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #17324d;
+}
+
+.trajectory-empty-state p {
+  margin: 0;
+  max-width: 500px;
+  font-size: 0.94rem;
+  line-height: 1.5;
+}
+
+/* Header Card */
+.trajectory-header-card {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid #dce7f0;
+  border-radius: 16px;
+  padding: 24px 28px;
+  box-shadow: 0 6px 20px rgba(8, 127, 140, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.trajectory-header-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.trajectory-header-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 780px;
+}
+
+.trajectory-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #087f8c;
+}
+
+.trajectory-title {
+  margin: 0;
+  font-size: 1.65rem;
+  font-weight: 750;
+  color: #17324d;
+  letter-spacing: -0.02em;
+}
+
+.trajectory-subtitle {
+  margin: 0;
+  font-size: 0.92rem;
+  color: #5a738e;
+  line-height: 1.45;
+}
+
+.trajectory-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 15px;
+  border-radius: 24px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.status-badge.attention {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.status-badge.improving {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+.status-badge.stable {
+  background: #f0fdfa;
+  color: #0f766e;
+  border: 1px solid #99f6e4;
+}
+
+.status-badge.insufficient {
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+}
+
+/* Refresh Button */
+.trajectory-refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  background: #f4f8fc;
+  border: 1px solid #c8dced;
+  border-radius: 8px;
+  color: #17324d;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.trajectory-refresh-btn:hover:not(:disabled) {
+  background: #e6f0f8;
+  border-color: #087f8c;
+  color: #087f8c;
+}
+
+.trajectory-refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spin {
+  animation: spinAnimation 1s linear infinite;
+}
+
+@keyframes spinAnimation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Stat Counter Ribbon */
+.trajectory-stats-ribbon {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid #edf2f7;
+}
+
+.stat-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.stat-card:hover,
+.stat-card.active {
+  background: #ffffff;
+  border-color: #087f8c;
+  box-shadow: 0 3px 10px rgba(8, 127, 140, 0.08);
+}
+
+.stat-card.stat-concerning.active {
+  border-color: #ef4444;
+  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.12);
+}
+
+.stat-card.stat-improving.active {
+  border-color: #10b981;
+  box-shadow: 0 3px 10px rgba(16, 185, 129, 0.12);
+}
+
+.stat-label {
+  font-size: 0.73rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.stat-value-group {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.stat-number {
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #17324d;
+  line-height: 1;
+}
+
+.stat-number.concerning {
+  color: #dc2626;
+}
+
+.stat-number.improving {
+  color: #059669;
+}
+
+.stat-number.stable {
+  color: #087f8c;
+}
+
+.stat-number.gap {
+  color: #d97706;
+}
+
+.stat-subtext {
+  font-size: 0.72rem;
+  color: #8da1b5;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Loading & Error */
+.trajectory-loading-card {
+  background: #ffffff;
+  border: 1px solid #dce7f0;
+  border-radius: 14px;
+  padding: 36px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: #5a738e;
+}
+
+.trajectory-error-card {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-left: 4px solid #ef4444;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  color: #991b1b;
+}
+
+.trajectory-error-card strong {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.trajectory-error-card p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #b91c1c;
+}
+
+/* Grouped Timing / Data Quality Notice */
+.trajectory-grouped-warning-card {
+  background: rgba(255, 251, 235, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #fde68a;
+  border-left: 5px solid #f59e0b;
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.08);
+}
+
+.grouped-warning-icon {
+  color: #d97706;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.grouped-warning-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.grouped-warning-title {
+  font-size: 0.84rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #92400e;
+}
+
+.grouped-warning-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.88rem;
+  color: #78350f;
+  line-height: 1.5;
+}
+
+.grouped-warning-list li {
+  margin-bottom: 3px;
+}
+
+/* Narrative Card */
+.trajectory-narrative-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f6faff 100%);
+  border: 1px solid #cce0f0;
+  border-left: 5px solid #087f8c;
+  border-radius: 14px;
+  padding: 22px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 4px 14px rgba(8, 127, 140, 0.04);
+}
+
+.narrative-section-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.narrative-section-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #17324d;
+}
+
+.narrative-meta {
+  margin-left: auto;
+  font-size: 0.82rem;
+  color: #5a738e;
+}
+
+.narrative-meta code {
+  background: #eaf1f8;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #087f8c;
+  font-size: 0.8rem;
+}
+
+.narrative-body {
+  margin: 0;
+  font-size: 0.94rem;
+  line-height: 1.6;
+  color: #24415f;
+}
+
+.trajectory-notes-list {
+  background: #ffffff;
+  border: 1px solid #dce8f4;
+  border-radius: 10px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notes-heading {
+  font-size: 0.78rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #087f8c;
+}
+
+.trajectory-notes-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.trajectory-notes-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: #334e68;
+  line-height: 1.45;
+}
+
+.bullet-arrow {
+  color: #087f8c;
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+/* Filter Tabs */
+.trajectory-filter-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-tab {
+  background: #ffffff;
+  border: 1px solid #dce7f0;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #5a738e;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.filter-tab:hover {
+  background: #f4f8fc;
+  color: #17324d;
+}
+
+.filter-tab.active {
+  background: #087f8c;
+  border-color: #087f8c;
+  color: #ffffff;
+}
+
+.filter-tab.concerning.active {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #ffffff;
+}
+
+.filter-tab.improving.active {
+  background: #059669;
+  border-color: #059669;
+  color: #ffffff;
+}
+
+.filter-tab.stable.active {
+  background: #0f766e;
+  border-color: #0f766e;
+  color: #ffffff;
+}
+
+.filter-tab.gaps.active {
+  background: #d97706;
+  border-color: #d97706;
+  color: #ffffff;
+}
+
+.trajectory-no-results {
+  background: #ffffff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 36px 20px;
+  text-align: center;
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Metrics Grid */
+.trajectory-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 18px;
+}
+
+/* Individual Metric Card */
+.trajectory-metric-card {
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #dce7f0;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 4px 14px rgba(8, 127, 140, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.trajectory-metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(8, 127, 140, 0.09);
+}
+
+.trajectory-metric-card.severity-high {
+  border-left: 4px solid #ef4444;
+}
+
+.trajectory-metric-card.severity-moderate {
+  border-left: 4px solid #f59e0b;
+}
+
+.trajectory-metric-card.severity-normal {
+  border-left: 4px solid #10b981;
+}
+
+.trajectory-metric-card.severity-info {
+  border-left: 4px solid #94a3b8;
+}
+
+/* Card Top */
+.metric-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.metric-card-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metric-unit-tag {
+  display: inline-block;
+  align-self: flex-start;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.metric-title {
+  margin: 0;
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #17324d;
+}
+
+/* Metric Badges */
+.metric-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 18px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.metric-badge.concerning {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.metric-badge.improving {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+.metric-badge.moderate {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.metric-badge.gap {
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+}
+
+.metric-badge.stable {
+  background: #f0fdfa;
+  color: #0f766e;
+  border: 1px solid #99f6e4;
+}
+
+/* Reading Sequence Track */
+.metric-sequence-track {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.reading-node {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 3px;
+  min-width: 0;
+  padding: 4px;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.reading-node.latest {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #bce1e6;
+  box-shadow: 0 2px 8px rgba(8, 127, 140, 0.08);
+}
+
+.reading-node-label {
+  font-size: 0.68rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.reading-node-label.latest {
+  color: #087f8c;
+}
+
+.reading-val {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #17324d;
+  line-height: 1.2;
+}
+
+.val-unit {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.reading-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.68rem;
+  color: #8da1b5;
+}
+
+.node-time {
+  font-size: 0.65rem;
+  color: #087f8c;
+  font-weight: 600;
+}
+
+.reading-source {
+  font-size: 0.65rem;
+  background: #ffffff;
+  border: 1px solid #dce7f0;
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: #5a738e;
+  font-weight: 600;
+}
+
+.reading-unrecorded {
+  font-size: 0.74rem;
+  color: #94a3b8;
+  font-style: italic;
+  padding: 6px 0;
+}
+
+.sequence-connector {
+  color: #94a3b8;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+/* Delta Box & Formula */
+.metric-delta-box {
+  background: #f4f8fc;
+  border: 1px solid #dce8f4;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.delta-stats-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.delta-item {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.delta-item-label {
+  font-size: 0.74rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.delta-item-val {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #17324d;
+}
+
+.delta-item-val.concerning {
+  color: #dc2626;
+}
+
+.delta-item-val.improving {
+  color: #059669;
+}
+
+.delta-item-val.secondary {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #5a738e;
+}
+
+.delta-item-val.unrecorded {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.metric-formula-tag {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 5px 8px;
+  border-radius: 5px;
+  overflow-x: auto;
+}
+
+.metric-formula-tag code {
+  font-size: 0.72rem;
+  color: #086672;
+  font-family: Consolas, Monaco, "Courier New", monospace;
+  white-space: nowrap;
+}
+
+/* Clinical Box */
+.metric-clinical-box {
+  padding-top: 2px;
+}
+
+.clinical-text {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: #334e68;
+}
+
+/* Quality Warning */
+.metric-quality-warning {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: #b45309;
+  line-height: 1.4;
+}
+
+.warning-icon {
+  color: #d97706;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.warning-text-container {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.warning-line {
+  font-size: 0.77rem;
+  line-height: 1.35;
+}
+
+/* Quick Cross-Feature Links */
+.trajectory-quick-links {
+  background: #ffffff;
+  border: 1px solid #dce7f0;
+  border-radius: 14px;
+  padding: 18px 22px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.quick-links-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #17324d;
+}
+
+.quick-links-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.quick-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #f4f8fc;
+  border: 1px solid #c8dced;
+  border-radius: 8px;
+  color: #087f8c;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.quick-nav-btn:hover {
+  background: #087f8c;
+  border-color: #087f8c;
+  color: #ffffff;
+}
+
+/* Regulatory Card */
+.trajectory-regulatory-card {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  color: #475569;
+}
+
+.shield-icon {
+  color: #087f8c;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.regulatory-text strong {
+  display: block;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.regulatory-text p {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #475569;
+}
+
+.text-teal {
+  color: #087f8c;
+}

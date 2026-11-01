@@ -1,0 +1,257 @@
+
+/* Medical Reports form - accessible light theme */
+/* Extracted clinical measurements */
+
+.extracted-measurements {
+  margin-top: 24px;
+  margin-bottom: 24px;
+}
+
+.measurement-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.measurement-card {
+  padding: 18px;
+  border: 1px solid rgba(120, 140, 170, 0.25);
+  border-radius: 14px;
+  background: rgba(120, 140, 170, 0.07);
+  min-width: 0;
+}
+
+.measurement-label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 0.88rem;
+  opacity: 0.8;
+  overflow-wrap: anywhere;
+}
+
+.measurement-value {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.extracted-measurements .clinical-disclaimer {
+  margin-top: 16px;
+}
+
+.report-history-item .extracted-measurements {
+  margin-top: 16px;
+}
+
+.report-selected-file {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 12px 0 16px;
+  padding: 12px 14px;
+  border: 1px solid rgba(120, 150, 180, 0.25);
+  border-radius: 12px;
+  overflow-wrap: anywhere;
+}
+
+.report-selected-file span {
+  font-size: 0.9rem;
+  opacity: 0.75;
+}
+
+.report-notice {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(34, 160, 107, 0.3);
+  margin: 12px 0;
+}
+
+.report-status {
+  margin: 14px 0;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(120, 150, 180, 0.25);
+}
+
+.report-status p {
+  margin: 6px 0 0;
+  line-height: 1.5;
+}
+
+.report-status-success {
+  border-color: rgba(34, 160, 107, 0.45);
+}
+
+.report-status-warning {
+  border-color: rgba(210, 150, 40, 0.5);
+}
+
+.report-history-item {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid rgba(120, 150, 180, 0.25);
+  border-radius: 14px;
+}
+
+.report-history-item h4 {
+  margin-top: 18px;
+}
+
+.report-extracted-text {
+  max-height: 360px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: 14px;
+  border-radius: 10px;
+  line-height: 1.55;
+}
+
+.report-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-bottom: 24px;
+}
+
+.report-form-group label {
+  font-size: 15px;
+  font-weight: 700;
+  color: #17324d;
+}
+
+.report-form-group input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px;
+  border: 1px solid #b8c9d9;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #172b4d;
+  font: inherit;
+}
+
+.report-form-group input:focus {
+  outline: 3px solid #a5e8e8;
+  border-color: #078b95;
+}
+
+.report-form-group input[type="file"] {
+  cursor: pointer;
+}
+
+.report-form-group input::file-selector-button {
+  margin-right: 12px;
+  padding: 9px 14px;
+  border: 0;
+  border-radius: 6px;
+  background: #e3eef7;
+  color: #17324d;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.report-file-name {
+  overflow-wrap: anywhere;
+  color: #40566f;
+  font-size: 14px;
+}
+
+.report-result-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 0;
+  border-bottom: 1px solid #dce5ef;
+  color: #334b64;
+}
+
+.report-result-row strong {
+  color: #17324d;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.report-extracted-text {
+  max-height: 360px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: 16px;
+  border: 1px solid #dce5ef;
+  border-radius: 10px;
+  background: #f5f8fc;
+  color: #172b4d;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* Improve form button visibility */
+.patient-workspace .workspace-primary-button {
+  padding: 13px 20px;
+  border: none;
+  border-radius: 10px;
+  background: #087f8c;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.patient-workspace .workspace-primary-button:hover {
+  background: #066773;
+}
+
+.patient-workspace .workspace-primary-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.add-visit-inline-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border: 1px solid #087f8c;
+  border-radius: 7px;
+  background: #f0fdfa;
+  color: #087f8c;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.add-visit-inline-btn:hover:not(:disabled) {
+  background: #ccfbf1;
+}
+
+.add-visit-inline-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.report-download-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #087f8c;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.report-download-link:hover {
+  background: #f1f5f9;
+  border-color: #087f8c;
+}
+

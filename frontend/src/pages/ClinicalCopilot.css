@@ -1,0 +1,933 @@
+/* =========================================
+   CareTrack AI — Patient History RAG Assistant
+   Theme: Professional Clinical Teal & Navy
+   ========================================= */
+
+:root {
+  --copilot-bg: #f3f8fc;
+  --copilot-card: #ffffff;
+  --copilot-text: #16334a;
+  --copilot-muted: #5e768d;
+  --copilot-accent: #087f8c;
+  --copilot-accent-hover: #066b76;
+  --copilot-border: #dce7f0;
+  --copilot-soft: #e5f7f4;
+  --copilot-shadow: 0 12px 35px rgba(28, 66, 88, 0.07);
+  --copilot-font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.copilot-page,
+.copilot-page * {
+  box-sizing: border-box;
+}
+
+.copilot-page {
+  min-height: 100vh;
+  padding: 24px clamp(16px, 4vw, 52px) 36px;
+  color: var(--copilot-text);
+  background:
+    radial-gradient(ellipse at 12% 0%, #e0f7f3 0%, transparent 38%),
+    radial-gradient(ellipse at 90% 8%, #e8f0ff 0%, transparent 32%),
+    var(--copilot-bg);
+  font-family: var(--copilot-font);
+}
+
+.copilot-page button,
+.copilot-page input,
+.copilot-page select,
+.copilot-page textarea {
+  font: inherit;
+}
+
+.copilot-page button {
+  cursor: pointer;
+}
+
+.copilot-page button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.copilot-page h1,
+.copilot-page h2,
+.copilot-page h3,
+.copilot-page h4,
+.copilot-page p {
+  margin-top: 0;
+}
+
+.copilot-page h1,
+.copilot-page h2,
+.copilot-page h3,
+.copilot-page h4 {
+  color: var(--copilot-text);
+}
+
+.copilot-page p {
+  color: var(--copilot-muted);
+  line-height: 1.7;
+}
+
+/* Header */
+
+.copilot-header {
+  width: min(100%, 1080px);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.copilot-back {
+  padding: 10px 16px;
+  color: var(--copilot-text);
+  background: #ffffff;
+  border: 1px solid var(--copilot-border);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.copilot-back:hover {
+  background: var(--copilot-soft);
+  border-color: #a8ded6;
+}
+
+.header-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.copilot-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  color: var(--copilot-text);
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid var(--copilot-border);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.copilot-status-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  background: #0ca58a;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(12, 165, 138, 0.16);
+}
+
+/* User Profile Badge */
+.user-profile-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  background: #ffffff;
+  border: 1px solid var(--copilot-border);
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.user-role-tag {
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  background: #e2f4f1;
+  color: #087f8c;
+}
+
+.user-role-tag.admin {
+  background: #fbeae8;
+  color: #c93b2b;
+}
+
+.user-name {
+  font-weight: 600;
+  color: var(--copilot-text);
+}
+
+.logout-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  color: #8c9ba5;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  transition: color 0.15s;
+}
+
+.logout-button:hover {
+  color: #d9383a;
+}
+
+/* Hero Section */
+
+.copilot-hero {
+  width: min(100%, 820px);
+  margin: 36px auto 26px;
+  text-align: center;
+}
+
+.copilot-eyebrow {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: var(--copilot-accent);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.copilot-hero h1 {
+  margin-bottom: 12px;
+  font-size: clamp(30px, 3.8vw, 44px);
+  font-weight: 800;
+  letter-spacing: -1.4px;
+  line-height: 1.15;
+}
+
+.copilot-hero p {
+  max-width: 650px;
+  margin: 0 auto 16px;
+  font-size: 14px;
+}
+
+.safety-warning-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 10px 16px;
+  background: #fff9ea;
+  border: 1px solid #fae19c;
+  border-radius: 10px;
+  color: #825e07;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+/* Patient Longitudinal Record Status Bar */
+
+.rag-status-card {
+  width: min(100%, 940px);
+  margin: 18px auto 20px;
+  padding: 18px 22px;
+  background: #ffffff;
+  border: 1px solid var(--copilot-border);
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(18, 52, 77, 0.04);
+}
+
+.rag-status-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #edf3f7;
+}
+
+.rag-status-patient {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rag-status-icon {
+  color: var(--copilot-accent);
+}
+
+.rag-status-patient h3 {
+  margin: 0 0 2px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.rag-status-meta {
+  color: var(--copilot-muted);
+  font-size: 12px;
+}
+
+.rag-engine-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(8, 127, 140, 0.08);
+  border: 1px solid rgba(8, 127, 140, 0.2);
+  border-radius: 999px;
+  color: var(--copilot-accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.rag-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.rag-metric-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.rag-metric-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #7b8e9f;
+}
+
+.rag-metric-val {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--copilot-text);
+}
+
+.rag-metric-val.small {
+  font-size: 13px;
+  font-weight: 600;
+  color: #274b62;
+  margin-top: 3px;
+}
+
+/* Empty State when Patient Has Zero Visits */
+
+.empty-history-banner {
+  width: min(100%, 940px);
+  margin: 0 auto 20px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  background: #fff6f6;
+  border: 1px solid #f9d3d3;
+  border-radius: 16px;
+}
+
+.empty-history-icon {
+  color: #c93b2b;
+  flex: 0 0 32px;
+  margin-top: 2px;
+}
+
+.empty-history-content h4 {
+  margin: 0 0 6px;
+  font-size: 16px;
+  color: #9f2415;
+}
+
+.empty-history-content p {
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: #6d4b47;
+}
+
+.empty-history-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.empty-action-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 15px;
+  background: #c93b2b;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  transition: background 0.15s;
+}
+
+.empty-action-primary:hover {
+  background: #b02a1b;
+}
+
+.empty-action-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #ffffff;
+  color: #6d4b47;
+  border: 1px solid #e8bcbc;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.15s;
+}
+
+.empty-action-secondary:hover {
+  background: #faecec;
+}
+
+/* Main Workspace */
+
+.copilot-workspace {
+  width: min(100%, 940px);
+  margin: 0 auto;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid var(--copilot-border);
+  border-radius: 20px;
+  box-shadow: var(--copilot-shadow);
+}
+
+/* Quick Questions Panel */
+
+.quick-questions-panel {
+  padding: 16px 22px;
+  background: linear-gradient(180deg, #fbfdff 0%, #f6f9fc 100%);
+  border-bottom: 1px solid var(--copilot-border);
+}
+
+.quick-questions-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 12px;
+  color: var(--copilot-accent);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.quick-questions-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.quick-question-btn {
+  padding: 7px 13px;
+  background: #ffffff;
+  color: #214358;
+  border: 1px solid #d5e2ec;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.quick-question-btn:hover:not(:disabled) {
+  background: var(--copilot-soft);
+  border-color: #7ecec2;
+  color: #065b64;
+  transform: translateY(-1px);
+}
+
+/* Conversation Thread */
+
+.copilot-chat {
+  min-height: 320px;
+  max-height: 560px;
+  overflow-y: auto;
+  padding: 24px;
+  background: #ffffff;
+}
+
+.copilot-empty {
+  max-width: 600px;
+  margin: 30px auto;
+  text-align: center;
+}
+
+.copilot-orb {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  color: #ffffff;
+  background: linear-gradient(145deg, #087f8c, #24b5a6);
+  border-radius: 16px;
+  font-size: 26px;
+  box-shadow: 0 10px 24px rgba(8, 127, 140, 0.22);
+}
+
+.copilot-empty h2 {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.copilot-empty p {
+  font-size: 13px;
+  color: var(--copilot-muted);
+}
+
+/* Messages */
+
+.copilot-message {
+  max-width: 92%;
+  margin: 0 0 20px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  border: 1px solid var(--copilot-border);
+}
+
+.copilot-message.user {
+  margin-left: auto;
+  background: #f0f7ff;
+  border-color: #d1e5fa;
+}
+
+.copilot-message.assistant {
+  margin-right: auto;
+  background: #fcfefe;
+  border-color: #dcece8;
+  box-shadow: 0 2px 12px rgba(18, 52, 77, 0.03);
+}
+
+.copilot-message-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.copilot-message-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--copilot-accent);
+}
+
+.copilot-message.user .copilot-message-label {
+  color: #1e6bb8;
+}
+
+.copilot-message-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #8fa0b0;
+}
+
+.copilot-message-body {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--copilot-text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.copilot-strong {
+  color: #065b64;
+  font-weight: 700;
+}
+
+.citation-badge {
+  display: inline-block;
+  margin: 0 3px;
+  padding: 1px 7px;
+  background: #e2f4f1;
+  border: 1px solid #94d8cd;
+  border-radius: 5px;
+  color: #087f8c;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+}
+
+/* Message Footer & Source Records Drawer */
+
+.copilot-message-footer {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed #dce7f0;
+}
+
+.rag-sources-container {
+  margin-bottom: 10px;
+}
+
+.rag-sources-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  background: #f4faf9;
+  border: 1px solid #cae8e2;
+  border-radius: 7px;
+  color: #087f8c;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 0.15s;
+}
+
+.rag-sources-toggle-btn:hover {
+  background: #e5f6f3;
+  border-color: #087f8c;
+}
+
+.rag-sources-list {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rag-source-card {
+  padding: 12px 14px;
+  background: #ffffff;
+  border: 1px solid #dce8e5;
+  border-left: 4px solid var(--copilot-accent);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.rag-source-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.rag-source-id-tag {
+  padding: 2px 7px;
+  background: #087f8c;
+  color: #ffffff;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.rag-source-type-tag {
+  padding: 2px 7px;
+  background: #ebf3f8;
+  color: #2b5570;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.rag-source-type-tag.clinical-measurement {
+  background: #e5f7f4;
+  color: #066b76;
+}
+
+.rag-source-type-tag.medical-report {
+  background: #f3ebf8;
+  color: #632b70;
+}
+
+.rag-source-visit-tag,
+.rag-source-date-tag {
+  font-size: 11px;
+  color: #697e90;
+}
+
+.rag-source-summary {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: #2c4254;
+  line-height: 1.5;
+}
+
+.rag-source-params {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #f0f5f8;
+}
+
+.rag-param-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: #f4f8fb;
+  border: 1px solid #dce8ef;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.rag-param-chip .param-k {
+  color: #556c80;
+  text-transform: capitalize;
+}
+
+.rag-param-chip .param-v {
+  color: #123046;
+  font-weight: 700;
+}
+
+/* Actions in footer */
+
+.copilot-message-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.copilot-copy-btn,
+.copilot-translate-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.copilot-copy-btn {
+  background: #ffffff;
+  color: #556c80;
+  border: 1px solid #d3e0ea;
+}
+
+.copilot-copy-btn:hover {
+  background: #f2f7fb;
+  color: #16334a;
+}
+
+.copilot-translate-action-btn {
+  background: rgba(8, 127, 140, 0.08);
+  color: #087f8c;
+  border: 1px solid rgba(8, 127, 140, 0.25);
+}
+
+.copilot-translate-action-btn:hover {
+  background: rgba(8, 127, 140, 0.18);
+  color: #044f57;
+  border-color: #087f8c;
+}
+
+/* Loading card */
+
+.copilot-loading-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: #f7fafc;
+  border: 1px solid #e1ecf3;
+  border-radius: 10px;
+  color: #375770;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.copilot-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(8, 127, 140, 0.25);
+  border-top-color: #087f8c;
+  border-radius: 50%;
+  animation: copilot-spin 0.7s linear infinite;
+}
+
+@keyframes copilot-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error message */
+
+.copilot-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 22px 0;
+  padding: 12px 16px;
+  background: #fff3f3;
+  border: 1px solid #fad2d2;
+  border-radius: 10px;
+  color: #a52d36;
+  font-size: 13px;
+}
+
+/* Question Composer */
+
+.copilot-composer {
+  padding: 20px 22px;
+  background: #ffffff;
+  border-top: 1px solid var(--copilot-border);
+}
+
+.copilot-composer > label {
+  display: block;
+  margin-bottom: 9px;
+  color: var(--copilot-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.copilot-composer textarea {
+  display: block;
+  width: 100%;
+  min-height: 90px;
+  resize: vertical;
+  padding: 13px 15px;
+  color: var(--copilot-text);
+  background: #fbfdff;
+  border: 1px solid var(--copilot-border);
+  border-radius: 12px;
+  outline: none;
+  font-size: 14px;
+  line-height: 1.6;
+  transition: all 0.2s ease;
+}
+
+.copilot-composer textarea:focus {
+  border-color: var(--copilot-accent);
+  box-shadow: 0 0 0 3px rgba(8, 127, 140, 0.12);
+}
+
+.copilot-composer-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.copilot-tools {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.copilot-voice-button {
+  padding: 8px 13px;
+  color: var(--copilot-accent);
+  background: #eaf8f5;
+  border: 1px solid #c9eae3;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 0.15s;
+}
+
+.copilot-voice-button:hover:not(:disabled) {
+  background: #d8f2ec;
+}
+
+.copilot-voice-button.listening {
+  background: #ffeded;
+  border-color: #f7baba;
+  color: #c93b2b;
+  animation: pulse-voice 1.2s infinite;
+}
+
+@keyframes pulse-voice {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.char-count {
+  font-size: 11px;
+  color: #8c9ea7;
+}
+
+.copilot-send {
+  padding: 11px 22px;
+  color: #ffffff;
+  background: var(--copilot-accent);
+  border: 1px solid var(--copilot-accent);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(8, 127, 140, 0.18);
+  transition: all 0.15s ease;
+}
+
+.copilot-send:hover:not(:disabled) {
+  background: var(--copilot-accent-hover);
+  transform: translateY(-1px);
+}
+
+/* Disclaimer Footer */
+
+.copilot-disclaimer {
+  width: min(100%, 940px);
+  margin: 18px auto 0;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid var(--copilot-border);
+  border-radius: 14px;
+}
+
+.copilot-disclaimer strong {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--copilot-text);
+  font-size: 12px;
+}
+
+.copilot-disclaimer p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .copilot-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-actions-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .rag-metrics-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .copilot-message {
+    max-width: 100%;
+  }
+
+  .copilot-composer-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .copilot-tools {
+    justify-content: space-between;
+  }
+
+  .copilot-send {
+    width: 100%;
+  }
+}

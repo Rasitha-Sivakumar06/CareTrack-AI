@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+sqlalchemy
+psycopg[binary]
+pypdf
+pytesseract
+Pillow
+python-multipart
+google-genai
+python-dotenv
+reportlab
+bcrypt>=4.2.0
+pyjwt>=2.9.0
