@@ -153,3 +153,5 @@ cd frontend && npm run build
 - **Clinical Decision Support Only**: CareTrack AI and the Health Change Radar generate informational, decision-support indicators. They do **not** provide automated diagnoses, prescribe treatment plans, or replace qualified medical evaluation.
 - **Human Confirmation**: All screening alerts, measurement deltas, and AI copilot observations must be interpreted and confirmed by a licensed healthcare professional.
 - **Data Gap Handling**: Missing or omitted measurements are never assumed normal or stable.
+
+CI protection test: verifying pull request checks.
