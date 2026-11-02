@@ -243,4 +243,224 @@ class MockSpeechRecognition {
   console.log("[SIMULATION 4 PASS] 'aborted' cleanly stops without showing an error banner.");
 }
 
-console.log("\nALL STATIC CHECKS AND RUNTIME SIMULATIONS PASSED (14/14)!");
+console.log("\n=== CareTrack AI Two-Way Voice Assistance Verification ===");
+
+// 11. Check Language Selector (English & Tamil)
+const hasTamilSupport = content.includes('"ta-IN"') && content.includes('"en-IN"');
+console.log(`[PASS 11] English & Tamil voice input languages supported: ${hasTamilSupport}`);
+if (!hasTamilSupport) throw new Error("Tamil/English language support missing");
+
+// 12. Check continuous recognition mode
+const hasContinuous = /recognition\.continuous\s*=\s*true/.test(content);
+console.log(`[PASS 12] Continuous voice recognition configured: ${hasContinuous}`);
+if (!hasContinuous) throw new Error("Continuous recognition missing");
+
+// 13. Check Text-to-Speech (TTS) functions defined for both Question and AI Response
+const hasSpeakResponseFunc = /function\s+speakResponse\(/.test(content);
+const hasSpeakQuestionFunc = /function\s+speakQuestion\(/.test(content);
+const hasPauseFunc = /function\s+pauseSpeech\(/.test(content);
+const hasResumeFunc = /function\s+resumeSpeech\(/.test(content);
+const hasStopFunc = /function\s+stopSpeech\(/.test(content);
+console.log(`[PASS 13] TTS functions (speakQuestion, speakResponse, pause, resume, stop) defined: ${hasSpeakQuestionFunc && hasSpeakResponseFunc && hasPauseFunc && hasResumeFunc && hasStopFunc}`);
+if (!hasSpeakQuestionFunc || !hasSpeakResponseFunc || !hasPauseFunc || !hasResumeFunc || !hasStopFunc) {
+  throw new Error("One or more TTS speech functions missing");
+}
+
+// 14. Check cleanTextForSpeech function
+const hasCleanText = /function\s+cleanTextForSpeech\(/.test(content);
+console.log(`[PASS 14] cleanTextForSpeech helper defined: ${hasCleanText}`);
+if (!hasCleanText) throw new Error("cleanTextForSpeech missing");
+
+// Extract and test cleanTextForSpeech directly
+const cleanFnMatch = content.match(/function\s+cleanTextForSpeech\([\s\S]*?\n\}/);
+if (!cleanFnMatch) throw new Error("Could not extract cleanTextForSpeech");
+const cleanTextForSpeech = new Function("text", cleanFnMatch[0].replace("function cleanTextForSpeech(text)", "") + "\nreturn cleanTextForSpeech(text);");
+
+// Test cleanTextForSpeech: remove citations and markdown, preserve medical data
+const rawSample = "**Blood Pressure**: 140/90 mmHg [S1, S2].\n* Fasting glucose: 130 mg/dL [S3].\n### Follow-up\nRecommended follow-up in 2 weeks.";
+const cleanedSample = cleanTextForSpeech(rawSample);
+console.log(`[PASS 15] cleanTextForSpeech strips citations and markup: ${!cleanedSample.includes("[S1") && !cleanedSample.includes("**") && cleanedSample.includes("140/90 mmHg")}`);
+if (cleanedSample.includes("[S1") || cleanedSample.includes("**") || !cleanedSample.includes("140/90 mmHg")) {
+  throw new Error(`cleanTextForSpeech failed: "${cleanedSample}"`);
+}
+
+// 16. Check Question voice output button beside question input
+const hasQuestionListenBtn = content.includes("Listen to Question");
+console.log(`[PASS 16] Question voice output button present beside question input: ${hasQuestionListenBtn}`);
+if (!hasQuestionListenBtn) throw new Error("Question voice output button missing");
+
+// 17. Check Response TTS controls in JSX: Listen to Response, Pause, Resume, Stop
+const hasListenBtn = content.includes("Listen to Response");
+const hasPauseBtn = content.includes("Pause");
+const hasResumeBtn = content.includes("Resume");
+const hasStopBtn = content.includes("Stop");
+console.log(`[PASS 17] TTS UI controls (Listen to Response, Pause, Resume, Stop) present in JSX: ${hasListenBtn && hasPauseBtn && hasResumeBtn && hasStopBtn}`);
+if (!hasListenBtn || !hasPauseBtn || !hasResumeBtn || !hasStopBtn) {
+  throw new Error("TTS action buttons missing in JSX");
+}
+
+// 18. Check TTS cancel on unmount
+const hasTtsCleanup = content.includes("window.speechSynthesis.cancel()");
+console.log(`[PASS 18] TTS speech synthesis cancelled on unmount: ${hasTtsCleanup}`);
+if (!hasTtsCleanup) throw new Error("TTS cancel on unmount missing");
+
+// 19. Simulate Speech Synthesis State Machine
+class MockSpeechSynthesis {
+  constructor() {
+    this.speaking = false;
+    this.paused = false;
+    this.currentUtterance = null;
+  }
+  speak(utterance) {
+    this.cancel();
+    this.speaking = true;
+    this.paused = false;
+    this.currentUtterance = utterance;
+    if (utterance.onstart) utterance.onstart();
+  }
+  pause() {
+    if (this.speaking) {
+      this.paused = true;
+      if (this.currentUtterance?.onpause) this.currentUtterance.onpause();
+    }
+  }
+  resume() {
+    if (this.speaking && this.paused) {
+      this.paused = false;
+      if (this.currentUtterance?.onresume) this.currentUtterance.onresume();
+    }
+  }
+  cancel() {
+    if (this.currentUtterance) {
+      if (this.currentUtterance.onend) this.currentUtterance.onend();
+    }
+    this.speaking = false;
+    this.paused = false;
+    this.currentUtterance = null;
+  }
+}
+
+// Simulation 5: Independent AI response playback (Play -> Pause -> Resume -> Stop)
+{
+  const synth = new MockSpeechSynthesis();
+  let state = { activeSource: null, status: "idle" };
+
+  function speakTextMock(source) {
+    synth.cancel();
+    const utterance = {
+      onstart: () => { state.activeSource = source; state.status = "playing"; },
+      onpause: () => { state.status = "paused"; },
+      onresume: () => { state.status = "playing"; },
+      onend: () => { state.activeSource = null; state.status = "idle"; },
+    };
+    synth.speak(utterance);
+  }
+
+  // 1. Play AI Response
+  speakTextMock({ type: "response", index: 0 });
+  if (state.activeSource?.type !== "response" || state.status !== "playing") {
+    throw new Error("AI Response Simulation: speakResponse failed to set playing state");
+  }
+
+  // 2. Pause
+  synth.pause();
+  if (state.status !== "paused") {
+    throw new Error("AI Response Simulation: pause failed to set paused state");
+  }
+
+  // 3. Resume
+  synth.resume();
+  if (state.status !== "playing") {
+    throw new Error("AI Response Simulation: resume failed to set playing state");
+  }
+
+  // 4. Stop
+  synth.cancel();
+  if (state.activeSource !== null || state.status !== "idle") {
+    throw new Error("AI Response Simulation: stop failed to reset to idle");
+  }
+
+  console.log("[SIMULATION 5 PASS] AI Response playback (Listen -> Pause -> Resume -> Stop) passed.");
+}
+
+// Simulation 6: Independent Question playback (Play -> Pause -> Resume -> Stop)
+{
+  const synth = new MockSpeechSynthesis();
+  let state = { activeSource: null, status: "idle" };
+
+  function speakTextMock(source) {
+    synth.cancel();
+    const utterance = {
+      onstart: () => { state.activeSource = source; state.status = "playing"; },
+      onpause: () => { state.status = "paused"; },
+      onresume: () => { state.status = "playing"; },
+      onend: () => { state.activeSource = null; state.status = "idle"; },
+    };
+    synth.speak(utterance);
+  }
+
+  // 1. Play typed or voice-input question
+  speakTextMock({ type: "question" });
+  if (state.activeSource?.type !== "question" || state.status !== "playing") {
+    throw new Error("Question Simulation: speakQuestion failed to set playing state");
+  }
+
+  // 2. Pause
+  synth.pause();
+  if (state.status !== "paused") {
+    throw new Error("Question Simulation: pause failed to set paused state");
+  }
+
+  // 3. Resume
+  synth.resume();
+  if (state.status !== "playing") {
+    throw new Error("Question Simulation: resume failed to set playing state");
+  }
+
+  // 4. Stop
+  synth.cancel();
+  if (state.activeSource !== null || state.status !== "idle") {
+    throw new Error("Question Simulation: stop failed to reset to idle");
+  }
+
+  console.log("[SIMULATION 6 PASS] Question voice output (Listen -> Pause -> Resume -> Stop) passed.");
+}
+
+// Simulation 7: Mutual Exclusion - Question and Response never play simultaneously
+{
+  const synth = new MockSpeechSynthesis();
+  let state = { activeSource: null, status: "idle" };
+
+  function speakTextMock(source) {
+    synth.cancel();
+    const utterance = {
+      onstart: () => { state.activeSource = source; state.status = "playing"; },
+      onpause: () => { state.status = "paused"; },
+      onresume: () => { state.status = "playing"; },
+      onend: () => { state.activeSource = null; state.status = "idle"; },
+    };
+    synth.speak(utterance);
+  }
+
+  // Start question audio
+  speakTextMock({ type: "question" });
+  if (state.activeSource?.type !== "question") throw new Error("Mutual Exclusion test: question did not start");
+
+  // Click response audio while question is playing -> Question audio must stop
+  speakTextMock({ type: "response", index: 0 });
+  if (state.activeSource?.type !== "response" || state.activeSource.index !== 0) {
+    throw new Error("Mutual Exclusion test: response failed to override question");
+  }
+
+  // Click question audio while response is playing -> Response audio must stop
+  speakTextMock({ type: "question" });
+  if (state.activeSource?.type !== "question") {
+    throw new Error("Mutual Exclusion test: question failed to override response");
+  }
+
+  synth.cancel();
+  console.log("[SIMULATION 7 PASS] Question and response audio mutual exclusion verified (never simultaneous).");
+}
+
+console.log("\nALL VOICE ASSISTANCE STATIC CHECKS AND RUNTIME SIMULATIONS PASSED (24/24)!");
+

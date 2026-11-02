@@ -15,6 +15,12 @@ import {
   Activity,
   Clock,
   ShieldAlert,
+  Mic,
+  Volume2,
+  VolumeX,
+  Pause,
+  Play,
+  Square,
 } from "lucide-react";
 import "./ClinicalCopilot.css";
 import { API_URL, authFetch } from "../config";
@@ -32,6 +38,38 @@ const QUICK_QUESTIONS = [
   "What symptoms and clinical notes were recorded previously?",
   "What medical reports are available?",
 ];
+
+/**
+ * Cleans response text for speech synthesis by removing citations, markdown markup,
+ * and technical metadata while strictly preserving the clinical narrative.
+ */
+function cleanTextForSpeech(text) {
+  if (!text) return "";
+  return text
+    // Remove citations like [S1], [S2, S3]
+    .replace(/\[S\d+(?:,\s*S\d+)*\]/g, "")
+    // Remove markdown links [title](url) -> title
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    // Remove markdown bold/italics
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/\*([^*]+)\*/g, "$1")
+    .replace(/__([^_]+)__/g, "$1")
+    .replace(/_([^_]+)_/g, "$1")
+    // Remove markdown headers
+    .replace(/^#{1,6}\s+/gm, "")
+    // Remove blockquotes and list bullets
+    .replace(/^>\s+/gm, "")
+    .replace(/^[-*+]\s+/gm, "")
+    .replace(/^\d+\.\s+/gm, "")
+    // Remove code blocks and inline code
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/`([^`]+)`/g, "$1")
+    // Remove HTML tags if any
+    .replace(/<[^>]*>/g, "")
+    // Normalize whitespace
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
 export default function ClinicalCopilot() {
   const navigate = useNavigate();
@@ -61,8 +99,22 @@ export default function ClinicalCopilot() {
   );
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef(null);
+  const baseQuestionRef = useRef("");
 
-  // Cleanup speech recognition on component unmount
+  // Text-to-Speech (Voice Output) states: supports both Question and AI Response playback
+  const [voiceInputLang, setVoiceInputLang] = useState("en-IN");
+  const [ttsSupported] = useState(
+    () => typeof window !== "undefined" && Boolean(window.speechSynthesis)
+  );
+  const [activeSpeechSource, setActiveSpeechSource] = useState(null); // null | { type: "question" } | { type: "response", index: number }
+  const [ttsStatus, setTtsStatus] = useState("idle"); // "idle" | "playing" | "paused"
+  const ttsUtteranceRef = useRef(null);
+
+  const isSpeakingQuestion = activeSpeechSource?.type === "question";
+  const isSpeakingResponse = (idx) =>
+    activeSpeechSource?.type === "response" && activeSpeechSource.index === idx;
+
+  // Cleanup speech recognition and synthesis on component unmount
   useEffect(() => {
     return () => {
       if (recognitionRef.current) {
@@ -72,6 +124,13 @@ export default function ClinicalCopilot() {
           // ignore cleanup abort errors
         }
         recognitionRef.current = null;
+      }
+      if (typeof window !== "undefined" && window.speechSynthesis) {
+        try {
+          window.speechSynthesis.cancel();
+        } catch {
+          // ignore cleanup cancel errors
+        }
       }
     };
   }, []);
@@ -90,6 +149,8 @@ export default function ClinicalCopilot() {
     const targetId = queryPatientId || selectedPatientId;
     if (targetId && targetId !== patientId) {
       setPatientId(targetId);
+      stopSpeech();
+      stopVoiceInput();
     }
   }, [queryPatientId, selectedPatientId, patientId]);
 
@@ -190,6 +251,9 @@ export default function ClinicalCopilot() {
       setError("Cannot query: this patient has no recorded clinical visits in CareTrack AI.");
       return;
     }
+
+    // Stop any active speech synthesis before sending
+    stopSpeech();
 
     // If voice recognition is actively listening, stop it before sending
     if (recognitionRef.current) {
@@ -299,7 +363,10 @@ export default function ClinicalCopilot() {
     }
   }
 
-  function startVoiceInput() {
+  async function startVoiceInput() {
+    // If voice output is currently playing, stop it before recording speech
+    stopSpeech();
+
     const SpeechRecognitionAPI =
       typeof window !== "undefined"
         ? window.SpeechRecognition || window.webkitSpeechRecognition
@@ -322,20 +389,35 @@ export default function ClinicalCopilot() {
       recognitionRef.current = null;
     }
 
+    // Pre-flight microphone permission check where supported
+    if (navigator?.mediaDevices?.getUserMedia) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach((track) => track.stop());
+      } catch (permErr) {
+        console.error("Microphone permission check failed:", permErr);
+        if (permErr.name === "NotAllowedError" || permErr.name === "PermissionDeniedError") {
+          setError(
+            "Microphone permission was denied. Please allow microphone access in Chrome's address bar settings."
+          );
+          setListening(false);
+          return;
+        }
+      }
+    }
+
     try {
       const recognition = new SpeechRecognitionAPI();
       recognitionRef.current = recognition;
 
-      // Configuration
-      // Fallback: use user's browser language if English-based, otherwise default to en-IN / en-US
-      const browserLang =
-        typeof navigator !== "undefined" && navigator.language
-          ? navigator.language
-          : "en-US";
-      recognition.lang = browserLang.startsWith("en") ? browserLang : "en-IN";
-      recognition.continuous = false;
-      recognition.interimResults = false;
+      // Configuration: Support selected language (English or Tamil)
+      recognition.lang = voiceInputLang || "en-IN";
+      recognition.continuous = true;
+      recognition.interimResults = true;
       recognition.maxAlternatives = 1;
+
+      // Capture initial question text before session starts
+      baseQuestionRef.current = question;
 
       recognition.onstart = () => {
         setListening(true);
@@ -344,15 +426,13 @@ export default function ClinicalCopilot() {
 
       recognition.onresult = (event) => {
         let transcript = "";
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          if (event.results[i].isFinal || !recognition.continuous) {
-            transcript += event.results[i][0].transcript;
-          }
+        for (let i = 0; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
         }
         const cleanTranscript = transcript.trim();
         if (cleanTranscript) {
-          setQuestion((prev) => {
-            const trimmedPrev = prev ? prev.trim() : "";
+          setQuestion(() => {
+            const trimmedPrev = baseQuestionRef.current ? baseQuestionRef.current.trim() : "";
             return trimmedPrev ? `${trimmedPrev} ${cleanTranscript}` : cleanTranscript;
           });
           setError("");
@@ -426,6 +506,133 @@ export default function ClinicalCopilot() {
     } else {
       startVoiceInput();
     }
+  }
+
+  // --- Voice Output (Text to Speech) Helpers ---
+  function stopSpeech() {
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch {
+        // ignore
+      }
+    }
+    setActiveSpeechSource(null);
+    setTtsStatus("idle");
+    ttsUtteranceRef.current = null;
+  }
+
+  function pauseSpeech() {
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      try {
+        window.speechSynthesis.pause();
+        setTtsStatus("paused");
+      } catch (err) {
+        console.warn("Speech pause error:", err);
+      }
+    }
+  }
+
+  function resumeSpeech() {
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      try {
+        window.speechSynthesis.resume();
+        setTtsStatus("playing");
+      } catch (err) {
+        console.warn("Speech resume error:", err);
+      }
+    }
+  }
+
+  function speakText(rawText, source) {
+    if (!ttsSupported) {
+      setError("Voice playback (Text-to-Speech) is not supported in this browser.");
+      return;
+    }
+
+    // Stop any existing speech so question and response never play simultaneously
+    stopSpeech();
+
+    const cleanText = cleanTextForSpeech(rawText);
+    if (!cleanText) {
+      if (source?.type === "question") {
+        setError("Please enter or speak a question first to listen.");
+      } else {
+        setError("No readable clinical text to speak.");
+      }
+      return;
+    }
+
+    try {
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      ttsUtteranceRef.current = utterance;
+
+      // Determine language: check for Tamil Unicode characters
+      const isTamil = /[\u0B80-\u0BFF]/.test(cleanText);
+      utterance.lang = isTamil ? "ta-IN" : (voiceInputLang || "en-IN");
+
+      // Select voice from browser voices if available
+      const voices = window.speechSynthesis.getVoices();
+      if (voices && voices.length > 0) {
+        if (isTamil) {
+          const taVoice = voices.find(
+            (v) => v.lang.startsWith("ta") || v.name.toLowerCase().includes("tamil")
+          );
+          if (taVoice) utterance.voice = taVoice;
+        } else {
+          const enVoice = voices.find(
+            (v) => v.lang === "en-IN" || v.lang === "en-GB" || v.lang.startsWith("en")
+          );
+          if (enVoice) utterance.voice = enVoice;
+        }
+      }
+
+      utterance.rate = 0.95; // Steady pace for clinical review
+
+      utterance.onstart = () => {
+        setActiveSpeechSource(source);
+        setTtsStatus("playing");
+      };
+
+      utterance.onpause = () => {
+        setTtsStatus("paused");
+      };
+
+      utterance.onresume = () => {
+        setTtsStatus("playing");
+      };
+
+      utterance.onend = () => {
+        setActiveSpeechSource(null);
+        setTtsStatus("idle");
+        ttsUtteranceRef.current = null;
+      };
+
+      utterance.onerror = (event) => {
+        if (event.error !== "canceled" && event.error !== "interrupted") {
+          console.error("CareTrack AI Speech Synthesis Error:", event.error, event);
+          setError(`Audio speech playback error (${event.error || "playback failed"}).`);
+        }
+        setActiveSpeechSource(null);
+        setTtsStatus("idle");
+        ttsUtteranceRef.current = null;
+      };
+
+      window.speechSynthesis.speak(utterance);
+    } catch (err) {
+      console.error("CareTrack AI Speech Synthesis Exception:", err);
+      setError("Failed to start voice playback. Please check audio output.");
+      setActiveSpeechSource(null);
+      setTtsStatus("idle");
+    }
+  }
+
+  function speakResponse(rawText, index) {
+    speakText(rawText, { type: "response", index });
+  }
+
+  function speakQuestion(rawText) {
+    speakText(rawText, { type: "question" });
   }
 
   function formatAnswerWithCitations(text) {
@@ -751,8 +958,67 @@ export default function ClinicalCopilot() {
                       </div>
                     )}
 
-                    {/* Actions: Copy & Translate */}
+                    {/* Actions: Listen, Copy & Translate */}
                     <div className="copilot-message-actions">
+                      {/* Voice Output Controls for AI Response (Text to Speech) */}
+                      {ttsSupported ? (
+                        isSpeakingResponse(index) ? (
+                          <div className="copilot-tts-controls" role="group" aria-label="Response speech playback controls">
+                            {ttsStatus === "playing" ? (
+                              <button
+                                type="button"
+                                className="copilot-voice-action-btn active"
+                                onClick={pauseSpeech}
+                                title="Pause AI response speech"
+                              >
+                                <Pause size={13} />
+                                <span>Pause</span>
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                className="copilot-voice-action-btn active"
+                                onClick={resumeSpeech}
+                                title="Resume AI response speech"
+                              >
+                                <Play size={13} />
+                                <span>Resume</span>
+                              </button>
+                            )}
+
+                            <button
+                              type="button"
+                              className="copilot-voice-action-btn stop"
+                              onClick={stopSpeech}
+                              title="Stop AI response speech"
+                            >
+                              <Square size={12} />
+                              <span>Stop</span>
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            className="copilot-voice-action-btn"
+                            onClick={() => speakResponse(message.text, index)}
+                            title="Listen to complete AI-generated response aloud"
+                          >
+                            <Volume2 size={13} />
+                            <span>Listen to Response</span>
+                          </button>
+                        )
+                      ) : (
+                        <button
+                          type="button"
+                          className="copilot-voice-action-btn disabled"
+                          disabled
+                          title="Voice playback is not supported in this browser."
+                        >
+                          <VolumeX size={13} />
+                          <span>Voice Unavailable</span>
+                        </button>
+                      )}
+
                       <button
                         type="button"
                         className="copilot-copy-btn"
@@ -812,9 +1078,74 @@ export default function ClinicalCopilot() {
 
         {/* Question Composer */}
         <form className="copilot-composer" onSubmit={sendQuestion}>
-          <label htmlFor="copilot-question">
-            Ask about {activePatientName ? `${activePatientName}'s` : "the patient's"} medical history
-          </label>
+          <div className="copilot-composer-label-row">
+            <label htmlFor="copilot-question">
+              Ask about {activePatientName ? `${activePatientName}'s` : "the patient's"} medical history
+            </label>
+
+            {/* Question Voice Output Controls (Speaker Button Beside Input) */}
+            {ttsSupported ? (
+              isSpeakingQuestion ? (
+                <div className="copilot-tts-controls question-tts-controls" role="group" aria-label="Question speech playback controls">
+                  {ttsStatus === "playing" ? (
+                    <button
+                      type="button"
+                      className="copilot-voice-action-btn active question-tts-btn"
+                      onClick={pauseSpeech}
+                      title="Pause reading question aloud"
+                    >
+                      <Pause size={13} />
+                      <span>Pause</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="copilot-voice-action-btn active question-tts-btn"
+                      onClick={resumeSpeech}
+                      title="Resume reading question aloud"
+                    >
+                      <Play size={13} />
+                      <span>Resume</span>
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    className="copilot-voice-action-btn stop question-tts-btn"
+                    onClick={stopSpeech}
+                    title="Stop reading question aloud"
+                  >
+                    <Square size={12} />
+                    <span>Stop</span>
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className="copilot-voice-action-btn question-tts-btn"
+                  onClick={() => speakQuestion(question)}
+                  disabled={!question.trim()}
+                  title={
+                    question.trim()
+                      ? "Read complete typed or spoken question aloud"
+                      : "Type or speak a question to listen to it"
+                  }
+                >
+                  <Volume2 size={13} />
+                  <span>Listen to Question</span>
+                </button>
+              )
+            ) : (
+              <button
+                type="button"
+                className="copilot-voice-action-btn disabled question-tts-btn"
+                disabled
+                title="Voice playback is not supported in this browser."
+              >
+                <VolumeX size={13} />
+                <span>Voice Unavailable</span>
+              </button>
+            )}
+          </div>
 
           <textarea
             id="copilot-question"
@@ -835,27 +1166,68 @@ export default function ClinicalCopilot() {
             }
           />
 
+          {/* Active Listening Status Indicator */}
+          {listening && (
+            <div className="voice-listening-indicator" role="status">
+              <span className="pulse-mic-dot" />
+              <span>
+                Listening in {voiceInputLang === "ta-IN" ? "Tamil (தமிழ்)" : "English"}... Speak your question now. Click &quot;Stop Listening&quot; when finished.
+              </span>
+            </div>
+          )}
+
           <div className="copilot-composer-footer">
             <div className="copilot-tools">
               {voiceSupported && (
-                <button
-                  type="button"
-                  className={`copilot-voice-button ${listening ? "listening" : ""}`}
-                  onClick={toggleVoiceInput}
-                  disabled={
-                    sending ||
-                    !patientId ||
-                    (historySummary && historySummary.totalVisits === 0)
-                  }
-                  title={
-                    listening
-                      ? "Click to stop microphone recording"
-                      : "Speak your question using microphone"
-                  }
-                  aria-pressed={listening}
-                >
-                  {listening ? "⏹ Stop Listening" : "🎙 Voice input"}
-                </button>
+                <>
+                  <button
+                    type="button"
+                    className={`copilot-voice-button ${listening ? "listening" : ""}`}
+                    onClick={toggleVoiceInput}
+                    disabled={
+                      sending ||
+                      !patientId ||
+                      (historySummary && historySummary.totalVisits === 0)
+                    }
+                    title={
+                      listening
+                        ? "Click to stop microphone recording"
+                        : `Speak your question in ${voiceInputLang === "ta-IN" ? "Tamil" : "English"}`
+                    }
+                    aria-pressed={listening}
+                  >
+                    {listening ? (
+                      <>
+                        <Square size={13} />
+                        <span>Stop Listening</span>
+                      </>
+                    ) : (
+                      <>
+                        <Mic size={13} />
+                        <span>Voice input</span>
+                      </>
+                    )}
+                  </button>
+
+                  <div className="voice-lang-selector" title="Select speech recognition language (English / Tamil)">
+                    <Languages size={12} />
+                    <select
+                      value={voiceInputLang}
+                      onChange={(e) => {
+                        setVoiceInputLang(e.target.value);
+                        if (listening) {
+                          stopVoiceInput();
+                        }
+                      }}
+                      disabled={listening || sending}
+                      aria-label="Speech recognition language"
+                      className="voice-lang-select"
+                    >
+                      <option value="en-IN">EN (English)</option>
+                      <option value="ta-IN">தமிழ் (Tamil)</option>
+                    </select>
+                  </div>
+                </>
               )}
 
               <span className="char-count">{question.length}/2000</span>

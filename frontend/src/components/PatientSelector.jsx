@@ -4,7 +4,7 @@ import { API_URL, authFetch } from "../config";
 import { usePatient } from "../context/PatientContext";
 import PatientRegistrationModal from "./PatientRegistrationModal";
 
-export default function PatientSelector({ onPatientChange, compact = false }) {
+export default function PatientSelector({ onPatientChange, compact = false, showPdf = false }) {
   const {
     patients,
     selectedPatientId,
@@ -118,7 +118,7 @@ export default function PatientSelector({ onPatientChange, compact = false }) {
         </div>
 
         <div className="selector-right">
-          {selectedPatientId && (
+          {showPdf && selectedPatientId && (
             <button
               type="button"
               className="download-pdf-btn"

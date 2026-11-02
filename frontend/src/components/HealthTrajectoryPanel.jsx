@@ -765,7 +765,7 @@ export default function HealthTrajectoryPanel({ patientId: propPatientId = null 
           <strong>Clinician Supervision & Non-Diagnostic Notice:</strong>
           <p>
             {trajectoryData?.disclaimer ||
-              "Clinical decision support only. Not an autonomous diagnosis or clinically validated prediction system. All trajectory classifications are based strictly on documented historical readings and configured demonstration rules. A qualified healthcare professional must review and verify all findings against primary source records."}
+              "Clinical decision support only. Not an autonomous diagnosis or clinically validated prediction system. All trajectory classifications are based strictly on documented historical readings and configured clinical rules. A qualified healthcare professional must review and verify all findings against primary source records."}
           </p>
         </div>
       </footer>
