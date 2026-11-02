@@ -406,7 +406,7 @@ function PatientPage() {
         description="Retrieve longitudinal clinical information from the connected backend."
       />
 
-      <PatientSelector onPatientChange={(newId) => loadPatientDataById(newId)} />
+      <PatientSelector showPdf onPatientChange={(newId) => loadPatientDataById(newId)} />
 
       <section className="workspace-panel">
         <form className="patient-search" onSubmit={loadPatientData}>
@@ -640,7 +640,7 @@ function LongitudinalInsightsPage() {
       <WorkspaceIntro
         eyebrow="CARETRACK AI · DECISION SUPPORT"
         title="Longitudinal Insights"
-        description="Compare recorded measurements across visits and review demonstration screening alerts."
+        description="Compare recorded measurements across visits and review clinical screening alerts."
       />
 
       <PatientSelector onPatientChange={(newId) => loadInsightsById(newId)} />
@@ -778,7 +778,7 @@ function LongitudinalInsightsPage() {
 
             {alerts.length === 0 ? (
               <p>
-                No recorded values crossed the configured demonstration
+                No recorded values crossed the configured clinical screening
                 thresholds. This does not establish that the patient is healthy.
               </p>
             ) : (
@@ -803,7 +803,7 @@ function LongitudinalInsightsPage() {
                     </div>
 
                     <div className="clinical-measurement">
-                      <span>Demo threshold</span>
+                      <span>Alert threshold</span>
                       <strong>
                         {alert.threshold || "Not specified"}
                       </strong>
@@ -820,7 +820,7 @@ function LongitudinalInsightsPage() {
 
             <p className="clinical-disclaimer">
               {alertsData.disclaimer ||
-                "Demonstration screening rules only. These alerts are not diagnoses. A qualified healthcare professional must review the results."}
+                "Clinical screening rules only. These alerts are not diagnoses. A qualified healthcare professional must review the results."}
             </p>
           </section>
         </>

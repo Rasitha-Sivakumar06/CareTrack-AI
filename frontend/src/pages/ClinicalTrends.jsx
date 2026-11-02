@@ -533,7 +533,7 @@ export default function ClinicalTrends() {
             <h2>Clinical Alerts</h2>
 
             <p className="panel-description">
-              Review measurements that cross configured demonstration
+              Review measurements that cross configured clinical screening
               thresholds. These alerts support clinical review and are not
               diagnoses.
             </p>
@@ -578,7 +578,7 @@ export default function ClinicalTrends() {
                   </div>
                 ) : (
                   <div className="chart-empty">
-                    No recorded values crossed the configured demonstration
+                    No recorded values crossed the configured clinical screening
                     thresholds. This does not establish that the patient is
                     healthy.
                   </div>

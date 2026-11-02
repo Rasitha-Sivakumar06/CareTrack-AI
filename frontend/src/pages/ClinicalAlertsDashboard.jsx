@@ -161,7 +161,7 @@ export default function ClinicalAlertsDashboard() {
           <span className="eyebrow">CARETRACK AI · CLINICAL SCREENING & TRIAGE</span>
           <h1>Clinical Alerts & Health Urgency Dashboard</h1>
           <p className="panel-description">
-            Longitudinal screening triage, demonstration threshold alerts, and review tracking across all registered patients.
+            Longitudinal screening triage, clinical screening alerts, and review tracking across all registered patients.
           </p>
         </div>
 
@@ -198,19 +198,19 @@ export default function ClinicalAlertsDashboard() {
         </div>
       </header>
 
-      {/* SYNTHETIC DEMO & CLINICAL SAFETY DISCLAIMER BANNER */}
+      {/* CLINICAL SAFETY & SIMULATED DATA DISCLAIMER BANNER */}
       <section className="alerts-disclaimer-banner demo-mode" role="region" aria-label="Clinical Safety Disclaimer">
         <div className="disclaimer-icon-wrap">
           <ShieldAlert size={22} />
         </div>
         <div className="disclaimer-content">
-          <h4>Decision Support Disclaimer & Synthetic Data Notice</h4>
+          <h4>Decision Support Disclaimer & Simulated Data Notice</h4>
           <p>
             {data?.disclaimer ||
-              "Demonstration screening rules applied to synthetic patient data. Alerts are not medical diagnoses and do not constitute real-time monitoring. A qualified healthcare professional must review and confirm all clinical findings."}
+              "Clinical screening rules applied to simulated patient data. Alerts are not medical diagnoses and do not constitute real-time monitoring. A qualified healthcare professional must review and confirm all clinical findings."}
           </p>
           <div className="disclaimer-tags">
-            <span className="demo-pill">Synthetic Demo Environment</span>
+            <span className="demo-pill">Simulated Test Records</span>
             <span className="safety-pill">Not Clinically Validated Thresholds</span>
             <span className="safety-pill">No Continuous Telemetry Claimed</span>
             <span className="safety-pill">Clinical Judgement Required</span>
@@ -258,7 +258,7 @@ export default function ClinicalAlertsDashboard() {
           </div>
           <div className="kpi-details">
             <span className="kpi-value">{summary.normal_count}</span>
-            <span className="kpi-label">Within Demo Limits</span>
+            <span className="kpi-label">Within Normal Limits</span>
           </div>
         </div>
 
@@ -291,7 +291,7 @@ export default function ClinicalAlertsDashboard() {
         </div>
       </section>
 
-      {/* CONFIGURABLE DEMONSTRATION RULES ACCORDION */}
+      {/* CONFIGURABLE CLINICAL RULES ACCORDION */}
       <section className="alerts-rules-panel">
         <div
           className={`rules-panel-header ${rulesExpanded ? "open" : ""}`}
@@ -299,7 +299,7 @@ export default function ClinicalAlertsDashboard() {
         >
           <div className="rules-panel-title">
             <Sliders size={18} color="var(--primary)" />
-            <h3>Configured Demonstration Screening Rules</h3>
+            <h3>Configured Clinical Screening Rules</h3>
             <span className="rules-badge">{data?.rules?.length || 6} Screening Parameters</span>
           </div>
           <button type="button" className="text-button" style={{ fontSize: "12px" }}>
@@ -322,7 +322,7 @@ export default function ClinicalAlertsDashboard() {
                 <div className="rule-chip-info">
                   <span className="rule-metric-name">{rule.metric}</span>
                   <span className="rule-threshold-range">
-                    Normal Demonstration Range:{" "}
+                    Normal Clinical Range:{" "}
                     <strong>
                       {rule.low !== null ? `${rule.low}` : "—"} to{" "}
                       {rule.high !== null ? `${rule.high}` : "—"} {rule.unit}
@@ -442,11 +442,6 @@ export default function ClinicalAlertsDashboard() {
                       <div className="pac-title-row">
                         <h3 className="pac-name">{patient.patient_name}</h3>
                         <span className="pac-code">{patient.patient_code}</span>
-                        {patient.is_synthetic_demo && (
-                          <span className="demo-pill" style={{ fontSize: "10px" }}>
-                            Synthetic Demo
-                          </span>
-                        )}
                         {isSelected && (
                           <span className="rules-badge" style={{ background: "#e0f2fe", color: "#0369a1" }}>
                             Active Context
@@ -487,7 +482,7 @@ export default function ClinicalAlertsDashboard() {
                       )}
                       {patient.highest_severity === "normal" && (
                         <span className="severity-badge normal">
-                          <CheckCircle2 size={14} /> Within Demo Limits
+                          <CheckCircle2 size={14} /> Within Normal Limits
                         </span>
                       )}
                       {patient.highest_severity === "no_data" && (
