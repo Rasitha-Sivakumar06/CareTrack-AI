@@ -91,10 +91,12 @@
   overflow-wrap: anywhere;
 }
 
+.clinical-alert-reason,
 .clinical-alert-card > p {
   color: #475569;
   font-size: 13px;
   line-height: 1.6;
+  margin: 0;
 }
 
 @media (max-width: 760px) {
@@ -196,10 +198,12 @@
   overflow-wrap: anywhere;
 }
 
+.insight-card-text,
 .insight-card > p {
   color: #475569;
   font-size: 13px;
   line-height: 1.6;
+  margin: 0 0 8px;
 }
 
 .insight-card small {

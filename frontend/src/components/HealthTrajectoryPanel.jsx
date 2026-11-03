@@ -23,6 +23,7 @@ import {
 import "./HealthTrajectoryPanel.css";
 import { API_URL, authFetch } from "../config";
 import { usePatient } from "../context/PatientContext";
+import FormattedClinicalText from "./ClinicalContentRenderer";
 
 function formatNodeTimestamp(reading) {
   if (!reading || !reading.visit_date) return null;
@@ -422,9 +423,10 @@ export default function HealthTrajectoryPanel({ patientId: propPatientId = null 
             </span>
           </div>
 
-          <p className="narrative-body">
-            {summary.factual_trajectory_narrative}
-          </p>
+          <FormattedClinicalText
+            text={summary.factual_trajectory_narrative}
+            className="narrative-body"
+          />
 
           {summary.clinical_decision_support_notes &&
             summary.clinical_decision_support_notes.length > 0 && (
@@ -436,7 +438,7 @@ export default function HealthTrajectoryPanel({ patientId: propPatientId = null 
                   {summary.clinical_decision_support_notes.map((note, idx) => (
                     <li key={idx}>
                       <ArrowRight size={13} className="bullet-arrow" />
-                      <span>{note}</span>
+                      <FormattedClinicalText text={note} inline />
                     </li>
                   ))}
                 </ul>
@@ -523,7 +525,9 @@ export default function HealthTrajectoryPanel({ patientId: propPatientId = null 
               <div className="metric-card-top">
                 <div className="metric-card-title-group">
                   <span className="metric-unit-tag">{metric.unit}</span>
-                  <h4 className="metric-title">{metric.label}</h4>
+                  <h4 className="metric-title">
+                    <FormattedClinicalText text={metric.label} inline />
+                  </h4>
                 </div>
 
                 <span className={badge.className}>
@@ -657,7 +661,10 @@ export default function HealthTrajectoryPanel({ patientId: propPatientId = null 
 
               {/* Clinical Explanation */}
               <div className="metric-clinical-box">
-                <p className="clinical-text">{metric.clinical_explanation}</p>
+                <FormattedClinicalText
+                  text={metric.clinical_explanation}
+                  className="clinical-text"
+                />
               </div>
 
               {/* Data Inconsistency / Multiple Readings / Quality Flags */}
@@ -763,10 +770,12 @@ export default function HealthTrajectoryPanel({ patientId: propPatientId = null 
         <ShieldAlert size={18} className="shield-icon" />
         <div className="regulatory-text">
           <strong>Clinician Supervision & Non-Diagnostic Notice:</strong>
-          <p>
-            {trajectoryData?.disclaimer ||
-              "Clinical decision support only. Not an autonomous diagnosis or clinically validated prediction system. All trajectory classifications are based strictly on documented historical readings and configured clinical rules. A qualified healthcare professional must review and verify all findings against primary source records."}
-          </p>
+          <FormattedClinicalText
+            text={
+              trajectoryData?.disclaimer ||
+              "Clinical decision support only. Not an autonomous diagnosis or clinically validated prediction system. All trajectory classifications are based strictly on documented historical readings and configured clinical rules. A qualified healthcare professional must review and verify all findings against primary source records."
+            }
+          />
         </div>
       </footer>
     </div>

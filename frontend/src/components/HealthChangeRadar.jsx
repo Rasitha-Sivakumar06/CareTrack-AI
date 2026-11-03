@@ -18,20 +18,22 @@ import {
   Calendar,
   ArrowRight,
   BrainCircuit,
-  RefreshCw,
   TrendingUp,
 } from "lucide-react";
 
 import "./HealthChangeRadar.css";
 import { API_URL, authFetch } from "../config";
 import { usePatient } from "../context/PatientContext";
+import FormattedClinicalText from "./ClinicalContentRenderer";
 
 function CustomRadarTooltip({ active, payload }) {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
       <div className="radar-tooltip">
-        <span className="radar-tooltip-title">{data.label}</span>
+        <span className="radar-tooltip-title">
+          <FormattedClinicalText text={data.label} inline />
+        </span>
         <div className="radar-tooltip-row">
           <span>Baseline ({data.baseline_date || "Prior"}):</span>
           <strong>
@@ -194,7 +196,7 @@ export default function HealthChangeRadar({ patientId: propPatientId = null }) {
             {summary.overall_status === "ATTENTION_REQUIRED" && <AlertTriangle size={15} />}
             {summary.overall_status === "MONITORING_RECOMMENDED" && <Info size={15} />}
             {summary.overall_status === "STABLE_TRAJECTORY" && <CheckCircle2 size={15} />}
-            {summary.overall_status.replace(/_/g, " ")}
+            <span>{summary.overall_status.replace(/_/g, " ")}</span>
           </span>
         )}
       </div>
@@ -236,12 +238,17 @@ export default function HealthChangeRadar({ patientId: propPatientId = null }) {
               )}
             </div>
 
-            <p className="radar-narrative-text">{summary.evidence_narrative}</p>
+            <FormattedClinicalText
+              text={summary.evidence_narrative}
+              className="radar-narrative-text"
+            />
 
             {summary.clinical_action_suggestions && summary.clinical_action_suggestions.length > 0 && (
               <ul className="radar-suggestions-list">
                 {summary.clinical_action_suggestions.map((sugg, idx) => (
-                  <li key={idx}>{sugg}</li>
+                  <li key={idx}>
+                    <FormattedClinicalText text={sugg} inline />
+                  </li>
                 ))}
               </ul>
             )}
@@ -292,17 +299,22 @@ export default function HealthChangeRadar({ patientId: propPatientId = null }) {
                     onClick={() => setSelectedMetricKey(m.key)}
                   >
                     <div className="metric-card-header">
-                      <span className="metric-card-label">{m.label}</span>
+                      <span className="metric-card-label">
+                        <FormattedClinicalText text={m.label} inline />
+                      </span>
+                      {" "}
                       <span className={`metric-card-badge ${getAlertBadgeClass(m.alert_level)}`}>
                         {m.alert_level.replace(/_/g, " ")}
                       </span>
                     </div>
 
                     <div className="metric-card-formula">
-                      {m.calculation_formula}
+                      <FormattedClinicalText text={m.calculation_formula} inline />
                     </div>
 
-                    <p className="metric-card-reason">{m.clinical_reason}</p>
+                    <div className="metric-card-reason">
+                      <FormattedClinicalText text={m.clinical_reason} />
+                    </div>
 
                     <div className="metric-card-values-row">
                       <span>Baseline: <strong>{m.baseline_value !== null ? `${m.baseline_value} ${m.unit}` : "None"}</strong></span>
@@ -329,7 +341,7 @@ export default function HealthChangeRadar({ patientId: propPatientId = null }) {
             </button>
           </div>
 
-          <p className="radar-disclaimer">{summary.disclaimer}</p>
+          <FormattedClinicalText text={summary.disclaimer} className="radar-disclaimer" />
         </>
       )}
     </div>

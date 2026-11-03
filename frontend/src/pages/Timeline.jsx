@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import PatientSelector from "../components/PatientSelector";
 import VisitRegistrationModal from "../components/VisitRegistrationModal";
 import ClinicalMeasurementModal from "../components/ClinicalMeasurementModal";
+import FormattedClinicalText from "../components/ClinicalContentRenderer";
 
 function formatDate(value) {
   if (!value) return "Date unavailable";
@@ -259,21 +260,21 @@ function TimelineEntry({ visit, index }) {
         {visit.symptoms && (
           <div className="timeline-section">
             <h4>Symptoms</h4>
-            <p>{visit.symptoms}</p>
+            <FormattedClinicalText text={visit.symptoms} />
           </div>
         )}
 
         {visit.clinical_notes && (
           <div className="timeline-section">
             <h4>Clinical Notes</h4>
-            <p>{visit.clinical_notes}</p>
+            <FormattedClinicalText text={visit.clinical_notes} />
           </div>
         )}
 
         {visit.follow_up_notes && (
           <div className="timeline-section">
             <h4>Follow-up Notes</h4>
-            <p>{visit.follow_up_notes}</p>
+            <FormattedClinicalText text={visit.follow_up_notes} />
           </div>
         )}
 

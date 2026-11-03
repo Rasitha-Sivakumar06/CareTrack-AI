@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { API_URL, authFetch } from "../config";
 import "./BilingualClinicalSummary.css";
+import FormattedClinicalText from "./ClinicalContentRenderer";
 
 export default function BilingualClinicalSummary({
   suggestedText = "",
@@ -292,7 +293,7 @@ export default function BilingualClinicalSummary({
               </button>
             </div>
             <div className="bilingual-card-content">
-              {translationResult.original_text}
+              <FormattedClinicalText text={translationResult.original_text} />
             </div>
           </div>
 
@@ -319,7 +320,7 @@ export default function BilingualClinicalSummary({
               </button>
             </div>
             <div className="bilingual-card-content highlight-content">
-              {translationResult.translated_text}
+              <FormattedClinicalText text={translationResult.translated_text} />
             </div>
           </div>
         </div>
@@ -330,10 +331,12 @@ export default function BilingualClinicalSummary({
         <ShieldAlert size={16} />
         <div>
           <strong>Clinician Verification Mandatory: </strong>
-          <span>
-            {translationResult?.disclaimer ||
-              "AI-assisted clinical translation for healthcare continuity. Must be reviewed and verified by a qualified clinician before patient communication. Vital signs, drug names, dosages, and timeline dates must be verified against source records."}
-          </span>
+          <FormattedClinicalText
+            text={
+              translationResult?.disclaimer ||
+              "AI-assisted clinical translation for healthcare continuity. Must be reviewed and verified by a qualified clinician before patient communication. Vital signs, drug names, dosages, and timeline dates must be verified against source records."
+            }
+          />
         </div>
       </footer>
     </section>
