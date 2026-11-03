@@ -18,6 +18,7 @@ import { usePatient } from "../context/PatientContext";
 import { useAuth } from "../context/AuthContext";
 import PatientSelector from "../components/PatientSelector";
 import ClinicalMeasurementModal from "../components/ClinicalMeasurementModal";
+import FormattedClinicalText from "../components/ClinicalContentRenderer";
 
 const fields = [
   { label: "Blood Pressure", key: "blood_pressure", unit: "mmHg" },
@@ -227,8 +228,10 @@ function InsightCard({ item }) {
   return (
     <article className="insight-card">
       <div className="insight-card-top">
-        <h3>{item.metric}</h3>
-
+        <h3>
+          <FormattedClinicalText text={item.metric} inline />
+        </h3>
+        {" "}
         <span className={`insight-badge ${direction}`}>
           {Number.isFinite(change) ? directionLabel : "Change unavailable"}
         </span>
@@ -260,7 +263,9 @@ function InsightCard({ item }) {
         </div>
       </div>
 
-      <p>{item.observation || "Review the measurements with a clinician."}</p>
+      <div className="insight-card-text">
+        <FormattedClinicalText text={item.observation || "Review the measurements with a clinician."} />
+      </div>
       <small>Requires clinical interpretation</small>
     </article>
   );
@@ -272,8 +277,10 @@ function ClinicalAlertCard({ alert }) {
   return (
     <article className={`clinical-alert-card ${severity}`}>
       <div className="clinical-alert-heading">
-        <h3>{alert.metric || "Clinical measurement"}</h3>
-
+        <h3>
+          <FormattedClinicalText text={alert.metric || "Clinical measurement"} inline />
+        </h3>
+        {" "}
         <span className={`alert-severity ${severity}`}>
           {severity.toUpperCase()} REVIEW
         </span>
@@ -294,7 +301,9 @@ function ClinicalAlertCard({ alert }) {
         </div>
       </div>
 
-      <p>{alert.reason || "Review this measurement with a clinician."}</p>
+      <div className="clinical-alert-reason">
+        <FormattedClinicalText text={alert.reason || "Review this measurement with a clinician."} />
+      </div>
     </article>
   );
 }
@@ -555,10 +564,12 @@ export default function ClinicalTrends() {
                       : `${alerts.length} alert(s) to review`}
                   </strong>
 
-                  <p>
-                    {alertData.summary ||
-                      "Review available alerts with a clinician."}
-                  </p>
+                  <FormattedClinicalText
+                    text={
+                      alertData.summary ||
+                      "Review available alerts with a clinician."
+                    }
+                  />
 
                   {alertData.visit_date && (
                     <small>
@@ -585,9 +596,10 @@ export default function ClinicalTrends() {
                 )}
 
                 {alertData.disclaimer && (
-                  <p className="clinical-disclaimer">
-                    {alertData.disclaimer}
-                  </p>
+                  <FormattedClinicalText
+                    text={alertData.disclaimer}
+                    className="clinical-disclaimer"
+                  />
                 )}
               </>
             )}
@@ -637,10 +649,12 @@ export default function ClinicalTrends() {
                 <div className="insight-summary">
                   <span className="eyebrow">COMPARISON SUMMARY</span>
 
-                  <p>
-                    {insightData.summary ||
-                      "No comparison summary is available."}
-                  </p>
+                  <FormattedClinicalText
+                    text={
+                      insightData.summary ||
+                      "No comparison summary is available."
+                    }
+                  />
 
                   {insightData.previous_visit_date &&
                     insightData.current_visit_date && (
@@ -663,15 +677,20 @@ export default function ClinicalTrends() {
                   </div>
                 ) : (
                   <div className="chart-empty">
-                    {insightData.summary ||
-                      "More visits with recorded measurements are needed for comparison."}
+                    <FormattedClinicalText
+                      text={
+                        insightData.summary ||
+                        "More visits with recorded measurements are needed for comparison."
+                      }
+                    />
                   </div>
                 )}
 
                 {insightData.disclaimer && (
-                  <p className="clinical-disclaimer">
-                    {insightData.disclaimer}
-                  </p>
+                  <FormattedClinicalText
+                    text={insightData.disclaimer}
+                    className="clinical-disclaimer"
+                  />
                 )}
               </>
             )}

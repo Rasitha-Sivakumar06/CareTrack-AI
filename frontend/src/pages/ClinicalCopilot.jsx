@@ -29,6 +29,7 @@ import { useAuth } from "../context/AuthContext";
 import PatientSelector from "../components/PatientSelector";
 import BilingualClinicalSummary from "../components/BilingualClinicalSummary";
 import VisitRegistrationModal from "../components/VisitRegistrationModal";
+import ClinicalContentRenderer from "../components/ClinicalContentRenderer";
 
 const QUICK_QUESTIONS = [
   "Summarize this patient's medical history.",
@@ -45,7 +46,16 @@ const QUICK_QUESTIONS = [
  */
 function cleanTextForSpeech(text) {
   if (!text) return "";
-  return text
+  const decoded = String(text)
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, h) => String.fromCharCode(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => String.fromCharCode(parseInt(d, 10)))
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+
+  return decoded
     // Remove citations like [S1], [S2, S3]
     .replace(/\[S\d+(?:,\s*S\d+)*\]/g, "")
     // Remove markdown links [title](url) -> title
@@ -637,32 +647,13 @@ export default function ClinicalCopilot() {
 
   function formatAnswerWithCitations(text) {
     if (!text) return null;
-    return text.split("\n").map((line, lineIndex) => {
-      // Highlight bold text (**bold**) and citations ([S1], [S2])
-      const parts = line.split(/(\*\*.*?\*\*|\[S\d+(?:,\s*S\d+)*\])/g);
-      return (
-        <span key={lineIndex} className="copilot-line">
-          {parts.map((part, partIndex) => {
-            if (part.startsWith("**") && part.endsWith("**")) {
-              return (
-                <strong key={partIndex} className="copilot-strong">
-                  {part.slice(2, -2)}
-                </strong>
-              );
-            }
-            if (/^\[S\d+(?:,\s*S\d+)*\]$/.test(part)) {
-              return (
-                <span key={partIndex} className="citation-badge" title="Grounded Clinical Source Citation">
-                  {part}
-                </span>
-              );
-            }
-            return part.replace(/^#{1,6}\s/, "");
-          })}
-          {"\n"}
-        </span>
-      );
-    });
+    return (
+      <ClinicalContentRenderer
+        content={text}
+        enableCitations
+        className="copilot-answer-rendered"
+      />
+    );
   }
 
   const activePatientName =

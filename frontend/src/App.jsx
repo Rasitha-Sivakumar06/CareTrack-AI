@@ -24,6 +24,7 @@ import MedicalReports from "./pages/MedicalReports";
 import ClinicalTrends from "./pages/ClinicalTrends";
 import Timeline from "./pages/Timeline";
 import ClinicalAlertsDashboard from "./pages/ClinicalAlertsDashboard";
+import FormattedClinicalText from "./components/ClinicalContentRenderer";
 
 /* -------------------------------------------------------
    MAIN APPLICATION ROUTES
@@ -693,10 +694,12 @@ function LongitudinalInsightsPage() {
           <section className="workspace-panel">
             <h2>Comparison Summary</h2>
 
-            <p>
-              {insightsData.summary ||
-                "No comparison summary was returned."}
-            </p>
+            <FormattedClinicalText
+              text={
+                insightsData.summary ||
+                "No comparison summary was returned."
+              }
+            />
 
             <div className="visit-summary-row">
               <span>Previous visit</span>
@@ -760,9 +763,9 @@ function LongitudinalInsightsPage() {
                     </div>
                   </div>
 
-                  <p>
-                    {item.observation || "No observation provided."}
-                  </p>
+                  <FormattedClinicalText
+                    text={item.observation || "No observation provided."}
+                  />
                 </article>
               ))
             )}
@@ -771,10 +774,12 @@ function LongitudinalInsightsPage() {
           <section className="workspace-panel">
             <h2>Clinical Screening Alerts</h2>
 
-            <p>
-              {alertsData.summary ||
-                "No alert summary was returned."}
-            </p>
+            <FormattedClinicalText
+              text={
+                alertsData.summary ||
+                "No alert summary was returned."
+              }
+            />
 
             {alerts.length === 0 ? (
               <p>
@@ -788,7 +793,9 @@ function LongitudinalInsightsPage() {
                   key={`${alert.metric}-${index}`}
                 >
                   <div className="visit-heading">
-                    <h3>{alert.metric}</h3>
+                    <h3>
+                      <FormattedClinicalText text={alert.metric} inline />
+                    </h3>
                     <span className="visit-date">
                       {alert.severity || "Review"}
                     </span>
@@ -810,18 +817,23 @@ function LongitudinalInsightsPage() {
                     </div>
                   </div>
 
-                  <p>
-                    {alert.reason ||
-                      "Professional review is recommended."}
-                  </p>
+                  <FormattedClinicalText
+                    text={
+                      alert.reason ||
+                      "Professional review is recommended."
+                    }
+                  />
                 </article>
               ))
             )}
 
-            <p className="clinical-disclaimer">
-              {alertsData.disclaimer ||
-                "Clinical screening rules only. These alerts are not diagnoses. A qualified healthcare professional must review the results."}
-            </p>
+            <FormattedClinicalText
+              text={
+                alertsData.disclaimer ||
+                "Clinical screening rules only. These alerts are not diagnoses. A qualified healthcare professional must review the results."
+              }
+              className="clinical-disclaimer"
+            />
           </section>
         </>
       )}

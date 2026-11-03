@@ -26,6 +26,7 @@ import "./ClinicalAlertsDashboard.css";
 import { API_URL, authFetch, authDownloadBlob } from "../config";
 import { usePatient } from "../context/PatientContext";
 import { useAuth } from "../context/AuthContext";
+import FormattedClinicalText from "../components/ClinicalContentRenderer";
 
 const REVIEW_STORAGE_KEY = "caretrack_alert_reviews";
 
@@ -205,10 +206,12 @@ export default function ClinicalAlertsDashboard() {
         </div>
         <div className="disclaimer-content">
           <h4>Decision Support Disclaimer & Simulated Data Notice</h4>
-          <p>
-            {data?.disclaimer ||
-              "Clinical screening rules applied to simulated patient data. Alerts are not medical diagnoses and do not constitute real-time monitoring. A qualified healthcare professional must review and confirm all clinical findings."}
-          </p>
+          <FormattedClinicalText
+            text={
+              data?.disclaimer ||
+              "Clinical screening rules applied to simulated patient data. Alerts are not medical diagnoses and do not constitute real-time monitoring. A qualified healthcare professional must review and confirm all clinical findings."
+            }
+          />
           <div className="disclaimer-tags">
             <span className="demo-pill">Simulated Test Records</span>
             <span className="safety-pill">Not Clinically Validated Thresholds</span>
@@ -440,7 +443,9 @@ export default function ClinicalAlertsDashboard() {
                   <div className="pac-header">
                     <div className="pac-patient-info">
                       <div className="pac-title-row">
-                        <h3 className="pac-name">{patient.patient_name}</h3>
+                        <h3 className="pac-name">
+                          <FormattedClinicalText text={patient.patient_name} inline />
+                        </h3>
                         <span className="pac-code">{patient.patient_code}</span>
                         {isSelected && (
                           <span className="rules-badge" style={{ background: "#e0f2fe", color: "#0369a1" }}>
@@ -512,7 +517,7 @@ export default function ClinicalAlertsDashboard() {
                   </div>
 
                   {/* SUMMARY TEXT */}
-                  <p className="pac-summary-text">{patient.summary}</p>
+                  <FormattedClinicalText text={patient.summary} className="pac-summary-text" />
 
                   {/* TRIGGERING MEASUREMENTS SECTION */}
                   {patient.alerts && patient.alerts.length > 0 && (
@@ -530,7 +535,9 @@ export default function ClinicalAlertsDashboard() {
                         {patient.alerts.map((alert, idx) => (
                           <div key={alert.field || idx} className="trigger-item-card">
                             <div className="trigger-item-top">
-                              <span className="trigger-item-metric">{alert.metric}</span>
+                              <span className="trigger-item-metric">
+                                <FormattedClinicalText text={alert.metric} inline />
+                              </span>
                               <span className={`trigger-item-severity ${alert.severity}`}>
                                 {alert.severity}
                               </span>
@@ -549,7 +556,7 @@ export default function ClinicalAlertsDashboard() {
                               </div>
                             </div>
 
-                            <p className="trigger-item-reason">{alert.reason}</p>
+                            <FormattedClinicalText text={alert.reason} className="trigger-item-reason" />
                           </div>
                         ))}
                       </div>

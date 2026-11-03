@@ -6,6 +6,7 @@ import { usePatient } from "../context/PatientContext";
 import { useAuth } from "../context/AuthContext";
 import PatientSelector from "../components/PatientSelector";
 import VisitRegistrationModal from "../components/VisitRegistrationModal";
+import { decodeHtmlEntities } from "../utils/clinicalFormatters";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
@@ -179,7 +180,7 @@ function ReportDetails({ report, patientId }) {
 
       {report.extracted_text?.trim() ? (
         <pre className="report-extracted-text">
-          {report.extracted_text}
+          {decodeHtmlEntities(report.extracted_text)}
         </pre>
       ) : (
         <p className="panel-description">

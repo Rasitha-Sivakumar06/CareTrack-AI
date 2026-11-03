@@ -263,20 +263,31 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .metric-card-label {
   font-size: 0.95rem;
   font-weight: 700;
   color: #17324d;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
 }
 
 .metric-card-badge {
   font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
-  padding: 3px 8px;
+  padding: 4px 9px;
   border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
 }
 
 .metric-card-badge.high {
@@ -307,12 +318,13 @@
   font-family: Consolas, monospace;
   font-size: 0.8rem;
   color: #334155;
+  overflow-x: auto;
 }
 
 .metric-card-reason {
   margin: 0;
-  font-size: 0.83rem;
-  line-height: 1.45;
+  font-size: 0.85rem;
+  line-height: 1.55;
   color: #475569;
 }
 
