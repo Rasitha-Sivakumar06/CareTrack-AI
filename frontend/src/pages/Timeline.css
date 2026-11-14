@@ -1,0 +1,433 @@
+
+/* =========================================
+   CARETRACK AI - PATIENT TIMELINE
+========================================= */
+
+.timeline-search-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: end;
+}
+
+.timeline-search-row .timeline-input-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.timeline-input-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.timeline-input-group input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.timeline-input-group input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(8, 127, 140, 0.12);
+}
+
+.timeline-search-button,
+.timeline-action-button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 11px 16px;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+
+.timeline-search-button {
+  border: 1px solid var(--primary);
+  background: var(--primary);
+  color: white;
+}
+
+.timeline-search-button:hover:not(:disabled) {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+.timeline-action-button {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--primary-dark);
+}
+
+.timeline-action-button:hover:not(:disabled) {
+  background: #eaf7f7;
+  border-color: var(--primary);
+}
+
+.timeline-search-button:disabled,
+.timeline-action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Patient profile */
+
+.timeline-profile {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 24px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: linear-gradient(135deg, #ffffff, #f0f9fa);
+  box-shadow: 0 5px 18px rgba(23, 50, 77, 0.05);
+}
+
+.timeline-profile h2 {
+  margin: 8px 0 12px;
+  color: var(--text);
+}
+
+.timeline-profile p {
+  margin: 7px 0;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.timeline-profile > div:last-child {
+  min-width: 130px;
+  padding: 16px 20px;
+  border: 1px solid #c9e8e8;
+  border-radius: 12px;
+  background: #eaf7f7;
+  text-align: center;
+}
+
+.timeline-profile > div:last-child strong {
+  display: block;
+  color: var(--primary-dark);
+  font-size: 2rem;
+}
+
+/* General timeline text */
+
+.timeline-muted {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+/* Timeline history */
+
+.timeline-list {
+  position: relative;
+  padding-left: 30px;
+}
+
+.timeline-list::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  background: #cbdfe3;
+}
+
+.timeline-entry {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -29px;
+  top: 22px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 3px solid #d7f0ef;
+  box-sizing: content-box;
+  z-index: 1;
+}
+
+.timeline-entry-card {
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 4px 15px rgba(23, 50, 77, 0.04);
+  overflow-wrap: anywhere;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.timeline-entry-card:hover {
+  border-color: #b9d9dc;
+  box-shadow: 0 7px 20px rgba(23, 50, 77, 0.07);
+}
+
+.timeline-entry-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.timeline-entry-header h3 {
+  margin: 8px 0;
+  color: var(--text);
+}
+
+.timeline-entry-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--primary);
+}
+
+.timeline-date {
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.timeline-section {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.timeline-section h4 {
+  margin: 0 0 12px;
+  color: var(--text);
+}
+
+.timeline-section p {
+  white-space: pre-wrap;
+  color: var(--text);
+  line-height: 1.65;
+}
+
+/* Clinical measurements */
+
+.timeline-measurements-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.timeline-measurement-card {
+  padding: 16px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+}
+
+.timeline-measurement-primary {
+  background: #f0fafa;
+  border: 1px solid #b9e4e1;
+}
+
+.timeline-measurement-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.timeline-reading-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 5px 9px;
+  border-radius: 6px;
+}
+
+.timeline-reading-badge-primary {
+  background: #d5f2ed;
+  color: #086b63;
+}
+
+.timeline-reading-badge-superseded {
+  background: #edf1f5;
+  color: #64748b;
+}
+
+.timeline-timing-note {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.timeline-measurement-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  gap: 10px;
+}
+
+.timeline-measurement-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 2px;
+  border-bottom: 1px solid #e6edf2;
+}
+
+.timeline-measurement-row span {
+  color: var(--muted);
+}
+
+.timeline-measurement-row strong {
+  color: var(--text);
+  text-align: right;
+}
+
+.timeline-measurement-row:last-child {
+  border-bottom: none;
+}
+
+/* Measurement revision history */
+
+.timeline-revisions-details {
+  margin-top: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 14px;
+  background: var(--surface);
+}
+
+.timeline-revisions-summary {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--primary-dark);
+  cursor: pointer;
+}
+
+.timeline-revisions-list {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.timeline-measurement-revision {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+}
+
+/* Medical reports */
+
+.timeline-report-list {
+  padding-left: 20px;
+  color: var(--text);
+}
+
+.timeline-report-list li {
+  margin: 12px 0;
+  padding-left: 4px;
+}
+
+.timeline-report-list li > span {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.timeline-report-list details {
+  margin-top: 8px;
+}
+
+.timeline-report-list summary {
+  color: var(--primary-dark);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.timeline-report-list pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: 14px;
+  background: #f4f8fc;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  max-height: 260px;
+  overflow: auto;
+  color: var(--text);
+}
+
+/* Mobile responsiveness */
+
+@media (max-width: 768px) {
+  .timeline-search-row {
+    align-items: stretch;
+  }
+
+  .timeline-search-row .timeline-input-group {
+    flex-basis: 100%;
+  }
+
+  .timeline-search-button,
+  .timeline-action-button {
+    flex: 1 1 calc(50% - 12px);
+  }
+
+  .timeline-profile {
+    align-items: stretch;
+    padding: 18px;
+  }
+
+  .timeline-profile > div:last-child {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .timeline-list {
+    padding-left: 23px;
+  }
+
+  .timeline-marker {
+    left: -22px;
+  }
+
+  .timeline-entry-card {
+    padding: 14px;
+  }
+
+  .timeline-measurement-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .timeline-measurement-row strong {
+    text-align: left;
+  }
+
+  .timeline-search-button,
+  .timeline-action-button {
+    flex-basis: 100%;
+  }
+}
